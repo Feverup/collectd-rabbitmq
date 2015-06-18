@@ -16,10 +16,6 @@ MESSAGE_STATS = ['ack', 'publish', 'publish_in', 'publish_out', 'confirm',
                  'deliver', 'deliver_noack', 'get', 'get_noack', 'deliver_get',
                  'redeliver', 'return']
 MESSAGE_DETAIL = ['avg', 'avg_rate', 'rate', 'sample']
-NODE_STATS = ['disk_free', 'disk_free_limit', 'fd_total',
-              'fd_used', 'mem_limit', 'mem_used',
-              'proc_total', 'proc_used', 'processors', 'run_queue',
-              'sockets_total', 'sockets_used']
 
 PLUGIN_CONFIG = {
     'username': 'guest',
@@ -162,16 +158,6 @@ def dispatch_exchange_metrics(exchange, vhost):
                            'exchanges', exchange['name'])
 
 
-def dispatch_node_metrics(node):
-    '''
-    Dispatches node metrics
-    '''
-
-    for name in NODE_STATS:
-        dispatch_values((node.get(name, 0),), node['name'].split('@')[1],
-                        'rabbitmq', None, name)
-
-
 def want_to_ignore(type_rmq, name):
     """
     Applies ignore regex to the queue.
@@ -203,8 +189,14 @@ def read(input_data=None):
     urllib2.install_opener(opener)
 
     #First get all the nodes
+    node_stats = ['disk_free', 'disk_free_limit', 'fd_total',
+                  'fd_used', 'mem_limit', 'mem_used',
+                  'proc_total', 'proc_used', 'processors', 'run_queue',
+                  'sockets_total', 'sockets_used']
     for node in get_info("%s/nodes" % (base_url)):
-        dispatch_node_metrics(node)
+        values = map( node.get , node_stats )
+        dispatch_values(values, node['name'].split('@')[1],
+                        'rabbitmq', None, 'rabbitmq_node')
 
     #Then get all vhost
 
