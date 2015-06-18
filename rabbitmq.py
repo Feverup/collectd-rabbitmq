@@ -162,16 +162,6 @@ def dispatch_exchange_metrics(exchange, vhost):
                            'exchanges', exchange['name'])
 
 
-def dispatch_node_metrics(node):
-    '''
-    Dispatches node metrics
-    '''
-
-    for name in NODE_STATS:
-        dispatch_values((node.get(name, 0),), node['name'].split('@')[1],
-                        'rabbitmq', None, name)
-
-
 def want_to_ignore(type_rmq, name):
     """
     Applies ignore regex to the queue.
@@ -204,7 +194,9 @@ def read(input_data=None):
 
     #First get all the nodes
     for node in get_info("%s/nodes" % (base_url)):
-        dispatch_node_metrics(node)
+        values = map( node.get , NODE_STATS )
+        dispatch_values(values, node['name'].split('@')[1],
+                        'rabbitmq', None, 'rabbit_node')
 
     #Then get all vhost
 

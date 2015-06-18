@@ -59,6 +59,8 @@ Nodes
 
 For each node the following statistics are gathered:
 
+* disk_free
+
 * disk_free_limit
 
 * fd_total
