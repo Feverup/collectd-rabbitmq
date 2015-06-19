@@ -9,13 +9,12 @@ import re
 
 RABBIT_API_URL = "http://{host}:{port}/api/"
 
-QUEUE_MESSAGE_STATS = ['messages', 'messages_ready', 'messages_unacknowledged']
-QUEUE_STATS = ['memory', 'messages', 'consumers']
+QUEUE_STATS = ['messages', 'messages_ready', 'messages_unacknowledged', 'memory', 'consumers']
 
 MESSAGE_STATS = ['ack', 'publish', 'publish_in', 'publish_out', 'confirm',
                  'deliver', 'deliver_noack', 'get', 'get_noack', 'deliver_get',
                  'redeliver', 'return']
-MESSAGE_DETAIL = ['avg', 'avg_rate', 'rate', 'sample']
+
 NODE_STATS = ['disk_free', 'disk_free_limit', 'fd_total',
               'fd_used', 'mem_limit', 'mem_used',
               'proc_total', 'proc_used', 'processors', 'run_queue',
@@ -130,24 +129,10 @@ def dispatch_queue_metrics(queue, vhost):
     '''
 
     vhost_name = 'rabbitmq_%s' % (vhost['name'].replace('/', 'default'))
-    for name in QUEUE_STATS:
-        values = list((queue.get(name, 0),))
-        dispatch_values(values, vhost_name, 'queues', queue['name'],
-                        'rabbitmq_%s' % name)
 
-    for name in QUEUE_MESSAGE_STATS:
-        values = list((queue.get(name, 0),))
-        dispatch_values(values, vhost_name, 'queues', queue['name'],
-                        'rabbitmq_%s' % name)
-
-        details = queue.get("%s_details" % name, None)
-        if not details:
-            continue
-        values = list()
-        for detail in MESSAGE_DETAIL:
-            values.append(details.get(detail, 0))
-        dispatch_values(values, vhost_name, 'queues', queue['name'],
-                        'rabbitmq_details', name)
+    values = map( queue.get , QUEUE_STATS )
+    dispatch_values(values, vhost_name, 'queue', queue['name'],
+                    'rabbit_queue', queue['node'].split('@')[1] )
 
     dispatch_message_stats(queue.get('message_stats', None), vhost_name,
                            'queues', queue['name'])

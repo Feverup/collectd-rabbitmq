@@ -103,14 +103,8 @@ For each queue in each vhost the following statistics are gathered:
     * redeliver_details
         * rate
 * messages
-* messages_details 
-    * rate
 * messages_ready
-* messages_ready_details
-    * rate
 * messages_unacknowledged
-* messages_unacknowledged_details
-  * rate
 * memory
 * consumers
 
