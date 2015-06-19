@@ -114,29 +114,9 @@ Exchanges
 For each exchange in each vhost the following statistics are gathered: 
 > NOTE: The ```/``` vhost name is sent as ```default```
 
-* disk_free 
+* publish_in
 
-* disk_free_limit 
-
-* fd_total
-
-* fd_used
-
-* mem_limit 
-
-* mem_used
-
-* proc_total
-
-* proc_used 
-
-* processors
-
-* run_queue
-
-* sockets_total
-
-* sockets_used
+* publish_out
 
 
 Developing
