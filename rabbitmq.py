@@ -9,10 +9,6 @@ import re
 
 RABBIT_API_URL = "http://{host}:{port}/api/"
 
-MESSAGE_STATS = ['ack', 'publish', 'publish_in', 'publish_out', 'confirm',
-                 'deliver', 'deliver_noack', 'get', 'get_noack', 'deliver_get',
-                 'redeliver', 'return']
-
 PLUGIN_CONFIG = {
     'username': 'guest',
     'password': 'guest',
@@ -103,19 +99,6 @@ def dispatch_values(values, host, plugin, plugin_instance, metric_type,
     metric.dispatch()
 
 
-def dispatch_message_stats(data, vhost, plugin, plugin_instance):
-    """
-    Sends message stats to collectd.
-    """
-    if not data:
-        collectd.debug("No data for %s in vhost %s" % (plugin, vhost))
-        return
-
-    for name in MESSAGE_STATS:
-        dispatch_values((data.get(name, 0),), vhost, plugin,
-                        plugin_instance, name)
-
-
 def dispatch_queue_metrics(queue, vhost):
     '''
     Dispatches queue metrics for queue in vhost
@@ -127,9 +110,6 @@ def dispatch_queue_metrics(queue, vhost):
     values = map( queue.get , queue_stats )
     dispatch_values(values, vhost_name, 'queue', queue['name'],
                     'rabbitmq_queue')
-
-    dispatch_message_stats(queue.get('message_stats', None), vhost_name,
-                           'queues', queue['name'])
 
 
 def want_to_ignore(type_rmq, name):
