@@ -132,15 +132,6 @@ def dispatch_queue_metrics(queue, vhost):
                            'queues', queue['name'])
 
 
-def dispatch_exchange_metrics(exchange, vhost):
-    '''
-    Dispatches exchange metrics for exchange in vhost
-    '''
-    vhost_name = 'rabbitmq_%s' % vhost['name'].replace('/', 'default')
-    dispatch_message_stats(exchange.get('message_stats', None), vhost_name,
-                           'exchanges', exchange['name'])
-
-
 def want_to_ignore(type_rmq, name):
     """
     Applies ignore regex to the queue.
@@ -203,12 +194,13 @@ def read(input_data=None):
 
         for exchange in get_info("%s/exchanges/%s" % (base_url,
                                  vhost_name)):
-            exchange_name = urllib.quote(exchange['name'], '')
-            if exchange_name:
+            exchange_name = 'rabbitmq_%s' % (vhost['name'].replace('/', 'default'))
+            if exchange.has_key('message_stats'):
                 collectd.debug("Found exchange %s" % exchange['name'])
-                exchange_data = get_info("%s/exchanges/%s/%s" % (
-                                         base_url, vhost_name, exchange_name))
-                dispatch_exchange_metrics(exchange_data, vhost)
+                message_stats = ['publish_in', 'publish_out']
+                values = map( exchange['message_stats'].get , message_stats )
+                dispatch_values(values, exchange_name, 'exchange', exchange['name'],
+                                'rabbitmq_exchange')
 
 
 def shutdown():
