@@ -11,9 +11,7 @@ RABBIT_API_URL = "http://{host}:{port}/api/"
 
 QUEUE_STATS = ['messages', 'messages_ready', 'messages_unacknowledged', 'memory', 'consumers']
 
-MESSAGE_STATS = ['ack', 'publish', 'publish_in', 'publish_out', 'confirm',
-                 'deliver', 'deliver_noack', 'get', 'get_noack', 'deliver_get',
-                 'redeliver', 'return']
+MESSAGE_STATS = ['publish_in', 'publish_out']
 
 NODE_STATS = ['disk_free', 'disk_free_limit', 'fd_total',
               'fd_used', 'mem_limit', 'mem_used',
@@ -138,15 +136,6 @@ def dispatch_queue_metrics(queue, vhost):
                            'queues', queue['name'])
 
 
-def dispatch_exchange_metrics(exchange, vhost):
-    '''
-    Dispatches exchange metrics for exchange in vhost
-    '''
-    vhost_name = 'rabbitmq_%s' % vhost['name'].replace('/', 'default')
-    dispatch_message_stats(exchange.get('message_stats', None), vhost_name,
-                           'exchanges', exchange['name'])
-
-
 def want_to_ignore(type_rmq, name):
     """
     Applies ignore regex to the queue.
@@ -210,7 +199,11 @@ def read(input_data=None):
                 collectd.debug("Found exchange %s" % exchange['name'])
                 exchange_data = get_info("%s/exchanges/%s/%s" % (
                                          base_url, vhost_name, exchange_name))
-                dispatch_exchange_metrics(exchange_data, vhost)
+                vhost_name = 'rabbitmq_%s' % vhost['name'].replace('/', 'default')
+                if exchange_data.has_key('message_stats'):
+                    values = map( exchange_data['message_stats'].get , MESSAGE_STATS )
+                    dispatch_values(values, vhost_name, 'exchange', exchange_data['name'],
+                                    'rabbit_exchange')
 
 
 def shutdown():
