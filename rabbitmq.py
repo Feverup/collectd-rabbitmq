@@ -108,19 +108,6 @@ def dispatch_values(values, host, plugin, plugin_instance, metric_type,
     metric.dispatch()
 
 
-def dispatch_message_stats(data, vhost, plugin, plugin_instance):
-    """
-    Sends message stats to collectd.
-    """
-    if not data:
-        collectd.debug("No data for %s in vhost %s" % (plugin, vhost))
-        return
-
-    for name in MESSAGE_STATS:
-        dispatch_values((data.get(name, 0),), vhost, plugin,
-                        plugin_instance, name)
-
-
 def dispatch_queue_metrics(queue, vhost):
     '''
     Dispatches queue metrics for queue in vhost
@@ -131,10 +118,6 @@ def dispatch_queue_metrics(queue, vhost):
     values = map( queue.get , QUEUE_STATS )
     dispatch_values(values, vhost_name, 'queue', queue['name'],
                     'rabbit_queue', queue['node'].split('@')[1] )
-
-    dispatch_message_stats(queue.get('message_stats', None), vhost_name,
-                           'queues', queue['name'])
-
 
 def want_to_ignore(type_rmq, name):
     """
