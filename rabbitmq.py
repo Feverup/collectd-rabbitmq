@@ -99,19 +99,6 @@ def dispatch_values(values, host, plugin, plugin_instance, metric_type,
     metric.dispatch()
 
 
-def dispatch_queue_metrics(queue, vhost):
-    '''
-    Dispatches queue metrics for queue in vhost
-    '''
-
-    vhost_name = 'rabbitmq_%s' % (vhost['name'].replace('/', 'default'))
-
-    queue_stats = ['memory', 'messages', 'consumers', 'messages', 'messages_ready', 'messages_unacknowledged']
-    values = map( queue.get , queue_stats )
-    dispatch_values(values, vhost_name, 'queue', queue['name'],
-                    'rabbitmq_queue')
-
-
 def want_to_ignore(type_rmq, name):
     """
     Applies ignore regex to the queue.
@@ -158,6 +145,7 @@ def read(input_data=None):
 
         vhost_name = urllib.quote(vhost['name'], '')
         collectd.debug("Found vhost %s" % vhost['name'])
+        vhost_safename = 'rabbitmq_%s' % (vhost['name'].replace('/', 'default'))
 
         for queue in get_info("%s/queues/%s" % (base_url, vhost_name)):
             queue_name = urllib.quote(queue['name'], '')
@@ -167,19 +155,21 @@ def read(input_data=None):
                                                            vhost_name,
                                                            queue_name))
                 if queue_data is not None:
-                    dispatch_queue_metrics(queue_data, vhost)
+                    queue_stats = ['memory', 'messages', 'consumers', 'messages', 'messages_ready', 'messages_unacknowledged']
+                    values = map( queue_data.get , queue_stats )
+                    dispatch_values(values, vhost_safename, 'queue', queue_data['name'],
+                                    'rabbitmq_queue')
                 else:
                     collectd.warning("Cannot get data back from %s/%s queue" %
                                     (vhost_name, queue_name))
 
         for exchange in get_info("%s/exchanges/%s" % (base_url,
                                  vhost_name)):
-            exchange_name = 'rabbitmq_%s' % (vhost['name'].replace('/', 'default'))
             if exchange.has_key('message_stats'):
                 collectd.debug("Found exchange %s" % exchange['name'])
                 message_stats = ['publish_in', 'publish_out']
                 values = map( exchange['message_stats'].get , message_stats )
-                dispatch_values(values, exchange_name, 'exchange', exchange['name'],
+                dispatch_values(values, vhost_safename, 'exchange', exchange['name'],
                                 'rabbitmq_exchange')
 
 
