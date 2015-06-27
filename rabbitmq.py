@@ -25,6 +25,7 @@ def configure(config_values):
 
     global PLUGIN_CONFIG
     collectd.info('Configuring RabbitMQ Plugin')
+    collectd.info('values : %s' % config_values)
     for config_value in config_values.children:
         collectd.info("%s = %s" % (config_value.key,
                                    len(config_value.values) > 0))
@@ -144,13 +145,14 @@ def read(input_data=None):
     values = map( lambda x : overview['queue_totals'][x]['rate'] , queue_totals )
     dispatch_values(values, node_name, 'overview', None, 'queue_stats_details')
     #
-    message_stats = ['deliver', 'deliver_get', 'ack', 'deliver_no_ack', 'publish', 'redeliver']
-    values = map( overview['message_stats'].get , message_stats )
-    dispatch_values(values, node_name, 'overview', None, 'message_stats')
-    #
-    message_stats = map( lambda x : "%s_details" % x , message_stats )
-    values = map( lambda x : overview['message_stats'][x]['rate'] , message_stats )
-    dispatch_values(values, node_name, 'overview', None, 'message_stats_details')
+    if overview.has_key('message_stats'):
+        message_stats = ['deliver', 'deliver_get', 'ack', 'deliver_no_ack', 'publish', 'redeliver']
+        values = map( overview['message_stats'].get , message_stats )
+        dispatch_values(values, node_name, 'overview', None, 'message_stats')
+        #
+        message_stats = map( lambda x : "%s_details" % x , message_stats )
+        values = map( lambda x : overview['message_stats'][x]['rate'] , message_stats )
+        dispatch_values(values, node_name, 'overview', None, 'message_stats_details')
 
     #First get all the nodes
     node_stats = ['disk_free', 'disk_free_limit', 'fd_total',
@@ -163,24 +165,31 @@ def read(input_data=None):
                  'queue_index_write_count', 'queue_index_journal_write_count',
                  'mnesia_ram_tx_count', 'mnesia_disk_tx_count',
                  'msg_store_read_count', 'msg_store_write_count']
-    for node in get_info("%s/nodes" % (base_url)):
+#    collectd.info( "Autho %s : %s / %s" % ( PLUGIN_CONFIG['realm'] , PLUGIN_CONFIG['username'] , PLUGIN_CONFIG['password'] ) )
+#    collectd.info( "VA POR %s/nodes" % base_url )
+#    collectd.info( "dale : %s" % get_info("%s/nodes" % (base_url)))
+    try :
+      for node in get_info("%s/nodes" % (base_url)):
         values = map( node.get , node_stats )
         dispatch_values(values, node['name'].split('@')[1],
-                        'rabbitmq', None, 'rabbitmq_node')
+                        'rabbitmq_%s'%node_name, None, 'rabbitmq_node')
         values = map( node.get , io_stats )
-        dispatch_values(values, node['name'].split('@')[1],
-                        'rabbitmq', None, 'io_stats')
-        values =  map( lambda k : node["%s_details"%k]['rate'] , io_stats )
-        dispatch_values(values, node['name'].split('@')[1],
-                        'rabbitmq', None, 'io_stats_details')
+    #    dispatch_values(values, node['name'].split('@')[1],
+    #                    'rabbitmq_%s'%node_name, None, 'io_stats')
+    #    values =  map( lambda k : node["%s_details"%k]['rate'] , io_stats )
+    #    dispatch_values(values, node['name'].split('@')[1],
+    #                    'rabbitmq_%s'%node_name, None, 'io_stats_details')
+    except Exception , ex :
+        collectd.info("Se romipio el nodes con %s" % ex)
 
     #Then get all vhost
 
-    for vhost in get_info("%s/vhosts" % (base_url)):
+    try :
+      for vhost in get_info("%s/vhosts" % (base_url)):
 
         vhost_name = urllib.quote(vhost['name'], '')
         collectd.debug("Found vhost %s" % vhost['name'])
-        vhost_safename = 'rabbitmq_%s' % (vhost['name'].replace('/', 'default'))
+        vhost_safename = 'rabbitmq_%s_%s' % (node_name,vhost['name'].replace('/', 'default'))
 
         if vhost.has_key( 'message_stats' ) :
             vhost_stats = ['messages', 'messages_ready', 'messages_unacknowledged', 'recv_oct', 'send_oct']
@@ -209,12 +218,15 @@ def read(input_data=None):
                 if queue_data is not None:
                     queue_stats = ['memory', 'messages', 'consumers', 'messages', 'messages_ready', 'messages_unacknowledged']
                     values = map( queue_data.get , queue_stats )
-                    dispatch_values(values, vhost_safename, 'queue', queue_data['name'],
+                    try :
+                      dispatch_values(values, vhost_safename, 'queue', queue_data['name'],
                                     'rabbitmq_queue')
-                    queue_details = map( lambda x : x + "_details" , ['messages', 'messages', 'messages_ready', 'messages_unacknowledged'] )
-                    values_details =  map( lambda x : x['rate'] , map( queue_data.get , queue_details ) )
-                    dispatch_values(values_details, vhost_safename, 'queue', queue_data['name'],
+                      queue_details = map( lambda x : x + "_details" , ['messages', 'messages', 'messages_ready', 'messages_unacknowledged'] )
+                      values_details =  map( lambda x : x['rate'] , map( queue_data.get , queue_details ) )
+                      dispatch_values(values_details, vhost_safename, 'queue', queue_data['name'],
                                     'rabbitmq_queue_details')
+                    except Exception , ex :
+                      collectd.info(" Se rompio el queue %s con %s" % ( queue_name , ex ) )
                 else:
                     collectd.warning("Cannot get data back from %s/%s queue" %
                                     (vhost_name, queue_name))
@@ -228,6 +240,8 @@ def read(input_data=None):
                 dispatch_values(values, vhost_safename, 'exchange', exchange['name'],
                                 'rabbitmq_exchange')
 
+    except Exception , ex :
+        collectd.info("Se romipio el vhosts con %s" % ex)
 
 def shutdown():
     '''
