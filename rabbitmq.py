@@ -13,6 +13,8 @@ RABBITMQ_OVERVIEW = ['channels', 'connections', 'consumers', 'exchanges', 'queue
 RABBITMQ_QUEUES = ['messages', 'messages_ready', 'messages_unacknowledged']
 RABBITMQ_MESSAGES = ['deliver', 'deliver_get', 'ack', 'deliver_no_ack', 'publish', 'redeliver']
 
+RABBITMQ_VHOST = ['messages', 'messages_ready', 'messages_unacknowledged', 'recv_oct', 'send_oct']
+
 QUEUE_STATS = ['messages', 'messages_ready', 'messages_unacknowledged', 'memory', 'consumers']
 
 MESSAGE_STATS = ['publish_in', 'publish_out']
@@ -173,6 +175,12 @@ def read(input_data=None):
         vhost_name = urllib.quote(vhost['name'], '')
         collectd.debug("Found vhost %s" % vhost['name'])
         vhost_safename = 'rabbitmq_%s' % vhost['name'].replace('/', 'default')
+
+        if vhost.has_key( 'message_stats' ) :
+            values = map( vhost.get , RABBITMQ_VHOST )
+            dispatch_values(values, vhost_safename, 'rabbitmq', None, 'rabbit_vhost')
+            values = map( vhost['message_stats'].get , RABBITMQ_MESSAGES )
+            dispatch_values(values, vhost_safename, 'messages', None, 'rabbit_messages')
 
         if vhost_safename == 'rabbitmq_default' :
             collectd.error( 'Skip queues & exchanges for default vhost' )
