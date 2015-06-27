@@ -59,6 +59,8 @@ Nodes
 
 For each node the following statistics are gathered:
 
+#### OS stats
+
 * disk_free
 
 * disk_free_limit
@@ -82,6 +84,26 @@ For each node the following statistics are gathered:
 * sockets_total
 
 * sockets_used
+
+#### IO stats
+
+* io_seek_count
+* io_seek_avg_time
+* io_sync_count
+* io_sync_avg_time
+* io_read_bytes
+* io_read_count
+* io_read_avg_time
+* io_write_bytes
+* io_write_count
+* io_write_avg_time
+* queue_index_read_count
+* queue_index_write_count
+* queue_index_journal_write_count
+* mnesia_ram_tx_count
+* mnesia_disk_tx_count
+* msg_store_read_count
+* msg_store_write_count
 
 Queues
 =======
