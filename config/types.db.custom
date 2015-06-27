@@ -6,3 +6,11 @@ rabbitmq_queue memory:GAUGE:0:U messages:COUNTER:0:U consumers:GAUGE:0:U rate-ms
 rabbitmq_queue_details messages:GAUGE:0:U rate-msg:GAUGE:0:U rate-ready:GAUGE:0:U rate-unack:GAUGE:0:U
 
 rabbitmq_exchange publish_in:COUNTER:0:U publish_out:COUNTER:0:U
+
+totals channels:GAUGE:0:U connections:GAUGE:0:U consumers:GAUGE:0:U exchanges:GAUGE:0:U queues:GAUGE:0:U
+
+queue_stats messages:COUNTER:0:U msgs_ready:COUNTER:0:U msgs_unack:COUNTER:0:U
+queue_stats_details messages:GAUGE:0:U msgs_ready:GAUGE:0:U msgs_unack:GAUGE:0:U
+
+message_stats deliver:COUNTER:0:U deliver_get:COUNTER:0:U ack:COUNTER:0:U deliver_no_ack:COUNTER:0:U publish:COUNTER:0:U redeliver:COUNTER:0:U
+message_stats_details deliver:GAUGE:0:U deliver_get:GAUGE:0:U ack:GAUGE:0:U deliver_no_ack:GAUGE:0:U publish:GAUGE:0:U redeliver:GAUGE:0:U

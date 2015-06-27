@@ -129,6 +129,29 @@ def read(input_data=None):
     opener = urllib2.build_opener(auth_handler)
     urllib2.install_opener(opener)
 
+    overview = get_info("%s/overview" % base_url)
+    node_name = overview['node'].split('@')[1]
+
+    object_totals = ['channels', 'connections', 'consumers', 'exchanges', 'queues']
+    values = map( overview['object_totals'].get , object_totals )
+    dispatch_values(values, node_name, 'overview', None, 'totals')
+
+    queue_totals = ['messages', 'messages_ready', 'messages_unacknowledged']
+    values = map( overview['queue_totals'].get , queue_totals )
+    dispatch_values(values, node_name, 'overview', None, 'queue_stats')
+
+    queue_totals = map( lambda x : "%s_details" % x , queue_totals )
+    values = map( lambda x : overview['queue_totals'][x]['rate'] , queue_totals )
+    dispatch_values(values, node_name, 'overview', None, 'queue_stats_details')
+
+    message_stats = ['deliver', 'deliver_get', 'ack', 'deliver_no_ack', 'publish', 'redeliver']
+    values = map( overview['message_stats'].get , message_stats )
+    dispatch_values(values, node_name, 'overview', None, 'message_stats')
+
+    message_stats = map( lambda x : "%s_details" % x , message_stats )
+    values = map( lambda x : overview['message_stats'][x]['rate'] , message_stats )
+    dispatch_values(values, node_name, 'overview', None, 'message_stats_details')
+
     #First get all the nodes
     node_stats = ['disk_free', 'disk_free_limit', 'fd_total',
                   'fd_used', 'mem_limit', 'mem_used',
