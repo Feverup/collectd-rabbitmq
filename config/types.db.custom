@@ -13,3 +13,11 @@ rabbitmq_exchange publish_in:COUNTER:0:U publish_out:COUNTER:0:U
 
 uwsgi load:GAUGE:0:U listen_queue:GAUGE:0:U listen_queue_errors:GAUGE:0:U signal_queue:GAUGE:0:U busy:GAUGE:0:U idle:GAUGE:0:U other:GAUGE:0:U tx:COUNTER:0:U requests:COUNTER:0:U delta_requests:GAUGE:0:U avg_rt:GAUGE:0:U
 
+totals channels:GAUGE:0:U connections:GAUGE:0:U consumers:GAUGE:0:U exchanges:GAUGE:0:U queues:GAUGE:0:U
+#
+queue_stats messages:COUNTER:0:U msgs_ready:COUNTER:0:U msgs_unack:COUNTER:0:U
+queue_stats_details messages:GAUGE:0:U msgs_ready:GAUGE:0:U msgs_unack:GAUGE:0:U
+#
+message_stats deliver:COUNTER:0:U deliver_get:COUNTER:0:U ack:COUNTER:0:U deliver_no_ack:COUNTER:0:U publish:COUNTER:0:U redeliver:COUNTER:0:U
+message_stats_details deliver:GAUGE:0:U deliver_get:GAUGE:0:U ack:GAUGE:0:U deliver_no_ack:GAUGE:0:U publish:GAUGE:0:U redeliver:GAUGE:0:U
+
