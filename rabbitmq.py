@@ -26,8 +26,8 @@ def configure(config_values):
     global PLUGIN_CONFIG
     collectd.info('Configuring RabbitMQ Plugin')
     for config_value in config_values.children:
-        collectd.info("%s = %s" % (config_value.key,
-                                   len(config_value.values) > 0))
+        collectd.info("%s = %s , %s" % (config_value.key,
+                                   len(config_value.values) > 0, config_value.values))
         if len(config_value.values) > 0:
             if config_value.key == 'Username':
                 PLUGIN_CONFIG['username'] = config_value.values[0]
@@ -144,13 +144,14 @@ def read(input_data=None):
     values = map( lambda x : overview['queue_totals'][x]['rate'] , queue_totals )
     dispatch_values(values, node_name, 'overview', None, 'queue_stats_details')
 
-    message_stats = ['deliver', 'deliver_get', 'ack', 'deliver_no_ack', 'publish', 'redeliver']
-    values = map( overview['message_stats'].get , message_stats )
-    dispatch_values(values, node_name, 'overview', None, 'message_stats')
+    if overview.has_key('message_stats'):
+        message_stats = ['deliver', 'deliver_get', 'ack', 'deliver_no_ack', 'publish', 'redeliver']
+        values = map( overview['message_stats'].get , message_stats )
+        dispatch_values(values, node_name, 'overview', None, 'message_stats')
 
-    message_stats = map( lambda x : "%s_details" % x , message_stats )
-    values = map( lambda x : overview['message_stats'][x]['rate'] , message_stats )
-    dispatch_values(values, node_name, 'overview', None, 'message_stats_details')
+        message_stats = map( lambda x : "%s_details" % x , message_stats )
+        values = map( lambda x : overview['message_stats'][x]['rate'] , message_stats )
+        dispatch_values(values, node_name, 'overview', None, 'message_stats_details')
 
     #First get all the nodes
     node_stats = ['disk_free', 'disk_free_limit', 'fd_total',
@@ -166,21 +167,21 @@ def read(input_data=None):
     for node in get_info("%s/nodes" % (base_url)):
         values = map( node.get , node_stats )
         dispatch_values(values, node['name'].split('@')[1],
-                        'rabbitmq', None, 'rabbitmq_node')
+                        'rabbitmq_%s'%node_name, None, 'rabbitmq_node')
         values = map( node.get , io_stats )
         dispatch_values(values, node['name'].split('@')[1],
-                        'rabbitmq', None, 'io_stats')
+                        'rabbitmq_%s'%node_name, None, 'io_stats')
         values =  map( lambda k : node["%s_details"%k]['rate'] , io_stats )
         dispatch_values(values, node['name'].split('@')[1],
-                        'rabbitmq', None, 'io_stats_details')
+                        'rabbitmq_%s'%node_name, None, 'io_stats_details')
 
-    #Then get all vhost
+    # Then get all vhost
 
     for vhost in get_info("%s/vhosts" % (base_url)):
 
         vhost_name = urllib.quote(vhost['name'], '')
         collectd.debug("Found vhost %s" % vhost['name'])
-        vhost_safename = 'rabbitmq_%s' % (vhost['name'].replace('/', 'default'))
+        vhost_safename = 'rabbitmq_%s_%s' % (node_name,vhost['name'].replace('/', 'default'))
 
         if vhost.has_key( 'message_stats' ) :
             vhost_stats = ['messages', 'messages_ready', 'messages_unacknowledged', 'recv_oct', 'send_oct']
