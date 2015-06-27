@@ -9,6 +9,10 @@ import re
 
 RABBIT_API_URL = "http://{host}:{port}/api/"
 
+RABBITMQ_OVERVIEW = ['channels', 'connections', 'consumers', 'exchanges', 'queues']
+RABBITMQ_QUEUES = ['messages', 'messages_ready', 'messages_unacknowledged']
+RABBITMQ_MESSAGES = ['deliver', 'deliver_get', 'ack', 'deliver_no_ack', 'publish', 'redeliver']
+
 QUEUE_STATS = ['messages', 'messages_ready', 'messages_unacknowledged', 'memory', 'consumers']
 
 MESSAGE_STATS = ['publish_in', 'publish_out']
@@ -143,6 +147,15 @@ def read(input_data=None):
                               passwd=PLUGIN_CONFIG['password'])
     opener = urllib2.build_opener(auth_handler)
     urllib2.install_opener(opener)
+
+    overview = get_info("%s/overview" % base_url)
+    cluster_name = overview['cluster_name'].split('@')[1]
+    values = map( overview['object_totals'].get , RABBITMQ_OVERVIEW )
+    dispatch_values(values, cluster_name, 'rabbitmq', None, 'rabbit_overview')
+    values = map( overview['queue_totals'].get , RABBITMQ_QUEUES )
+    dispatch_values(values, cluster_name, 'rabbitmq', None, 'rabbit_queues')
+    values = map( overview['message_stats'].get , RABBITMQ_MESSAGES )
+    dispatch_values(values, cluster_name, 'rabbitmq', None, 'rabbit_messages')
 
     #First get all the nodes
     for node in get_info("%s/nodes" % (base_url)):
