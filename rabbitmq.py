@@ -159,6 +159,10 @@ def read(input_data=None):
                     values = map( queue_data.get , queue_stats )
                     dispatch_values(values, vhost_safename, 'queue', queue_data['name'],
                                     'rabbitmq_queue')
+                    queue_details = map( lambda x : x + "_details" , ['messages', 'messages', 'messages_ready', 'messages_unacknowledged'] )
+                    values_details =  map( lambda x : x['rate'] , map( queue_data.get , queue_details ) )
+                    dispatch_values(values_details, vhost_safename, 'queue', queue_data['name'],
+                                    'rabbitmq_queue_details')
                 else:
                     collectd.warning("Cannot get data back from %s/%s queue" %
                                     (vhost_name, queue_name))

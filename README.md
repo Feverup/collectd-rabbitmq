@@ -59,6 +59,8 @@ Nodes
 
 For each node the following statistics are gathered:
 
+* disk_free 
+
 * disk_free_limit
 
 * fd_total
@@ -84,6 +86,7 @@ For each node the following statistics are gathered:
 Queues
 =======
 
+rabbitmq_queue memory:GAUGE:0:U messages:COUNTER:0:U consumers:GAUGE:0:U rate-msg:COUNTER:0:U rate-ready:COUNTER:0:U rate-unack:COUNTER:0:U
 For each queue in each vhost the following statistics are gathered:
 > NOTE: The ```/``` vhost name is sent as ```default```
 
@@ -100,20 +103,16 @@ For each queue in each vhost the following statistics are gathered:
     * redeliver  
     * redeliver_details
         * rate
-* messages
-* messages_details 
-    * rate
+* messages ( & rate-msg )
 * messages_ready
-* messages_ready_details
-    * rate
 * messages_unacknowledged
-* messages_unacknowledged_details
-  * rate
 * memory
 * consumers
 
 Exchanges
 =========
+
+rabbitmq_exchange publish_in:COUNTER:0:U publish_out:COUNTER:0:U
 
 For each exchange in each vhost the following statistics are gathered: 
 > NOTE: The ```/``` vhost name is sent as ```default```

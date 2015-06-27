@@ -1,5 +1,16 @@
+# rabbitmq_node -> os_stats
 rabbitmq_node disk_free:GAUGE:0:U disk_free_limit:GAUGE:0:U fd_total:GAUGE:0:U fd_used:GAUGE:0:U mem_limit:GAUGE:0:U mem_used:GAUGE:0:U proc_total:GAUGE:0:U proc_used:GAUGE:0:U processors:GAUGE:0:U run_queue:GAUGE:0:U sockets_total:GAUGE:0:U sockets_used:GAUGE:0:U
+#      "disk_free_alarm" : false,
+#      "mem_alarm" : false,
 
-rabbitmq_queue memory:GAUGE:0:U messages:GAUGE:0:U consumers:GAUGE:0:U rate-msg:COUNTER:0:U rate-ready:COUNTER:0:U rate-unack:COUNTER:0:U
+#rabbitmq_queue memory:GAUGE:0:U messages:GAUGE:0:U consumers:GAUGE:0:U rate-msg:GAUGE:0:U rate-ready:GAUGE:0:U rate-unack:GAUGE:0:U
+rabbitmq_queue memory:GAUGE:0:U messages:COUNTER:0:U consumers:GAUGE:0:U rate-msg:COUNTER:0:U rate-ready:COUNTER:0:U rate-unack:COUNTER:0:U
+rabbitmq_queue_details messages:GAUGE:0:U rate-msg:GAUGE:0:U rate-ready:GAUGE:0:U rate-unack:GAUGE:0:U
 
 rabbitmq_exchange publish_in:COUNTER:0:U publish_out:COUNTER:0:U
+
+uwsgi load:GAUGE:0:U listen_queue:GAUGE:0:U listen_queue_errors:GAUGE:0:U signal_queue:GAUGE:0:U busy:GAUGE:0:U idle:GAUGE:0:U other:GAUGE:0:U tx:COUNTER:0:U requests:COUNTER:0:U delta_requests:GAUGE:0:U avg_rt:GAUGE:0:U
+
+io_stats io_seek_count:COUNTER:0:U io_seek_avg_time:GAUGE:0:U io_sync_count:COUNTER:0:U io_sync_avg_time:GAUGE:0:U io_read_bytes:COUNTER:0:U io_read_count:COUNTER:0:U io_read_avg_time:GAUGE:0:U io_write_bytes:COUNTER:0:U io_write_count:COUNTER:0:U io_write_avg_time:GAUGE:0:U queue_index_read_count:COUNTER:0:U queue_index_write_count:COUNTER:0:U queue_index_journal_write_count:COUNTER:0:U mnesia_ram_tx_count:COUNTER:0:U mnesia_disk_tx_count:COUNTER:0:U msg_store_read_count:COUNTER:0:U msg_store_write_count:COUNTER:0:U
+io_stats io_seek_count:GAUGE:0:U io_seek_avg_time:GAUGE:0:U io_sync_count:GAUGE:0:U io_sync_avg_time:GAUGE:0:U io_read_bytes:GAUGE:0:U io_read_count:GAUGE:0:U io_read_avg_time:GAUGE:0:U io_write_bytes:GAUGE:0:U io_write_count:GAUGE:0:U io_write_avg_time:GAUGE:0:U queue_index_read_count:GAUGE:0:U queue_index_write_count:GAUGE:0:U queue_index_journal_write_count:GAUGE:0:U mnesia_ram_tx_count:GAUGE:0:U mnesia_disk_tx_count:GAUGE:0:U msg_store_read_count:GAUGE:0:U msg_store_write_count:GAUGE:0:U
+
