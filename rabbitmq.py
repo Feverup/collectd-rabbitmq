@@ -152,6 +152,9 @@ def read(input_data=None):
         collectd.debug("Found vhost %s" % vhost['name'])
         vhost_safename = 'rabbitmq_%s' % vhost['name'].replace('/', 'default')
 
+        if vhost_safename == 'rabbitmq_default' :
+            continue
+
         for queue in get_info("%s/queues/%s" % (base_url, vhost_name)):
             queue_name = urllib.quote(queue['name'], '')
             collectd.debug("Found queue %s" % queue['name'])
