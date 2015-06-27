@@ -182,6 +182,23 @@ def read(input_data=None):
         collectd.debug("Found vhost %s" % vhost['name'])
         vhost_safename = 'rabbitmq_%s' % (vhost['name'].replace('/', 'default'))
 
+        if vhost.has_key( 'message_stats' ) :
+            vhost_stats = ['messages', 'messages_ready', 'messages_unacknowledged', 'recv_oct', 'send_oct']
+            values = map( vhost.get , vhost_stats )
+            dispatch_values(values, vhost_safename, 'vhost', None, 'vhost_stats')
+            #
+            vhost_stats = map( lambda x : "%s_details" % x , vhost_stats )
+            values = map( lambda x : vhost[x]['rate'] , vhost_stats )
+            dispatch_values(values, vhost_safename, 'vhost', None, 'vhost_stats_details')
+            #
+            message_stats = ['deliver', 'deliver_get', 'ack', 'deliver_no_ack', 'publish', 'redeliver']
+            values = map( vhost['message_stats'].get , message_stats )
+            dispatch_values(values, vhost_safename, 'messages', None, 'message_stats')
+            #
+            message_stats = map( lambda x : "%s_details" % x , message_stats )
+            values = map( lambda x : vhost['message_stats'][x]['rate'] , message_stats )
+            dispatch_values(values, vhost_safename, 'messages', None, 'message_stats_details')
+
         for queue in get_info("%s/queues/%s" % (base_url, vhost_name)):
             queue_name = urllib.quote(queue['name'], '')
             collectd.debug("Found queue %s" % queue['name'])

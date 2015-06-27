@@ -21,3 +21,5 @@ queue_stats_details messages:GAUGE:0:U msgs_ready:GAUGE:0:U msgs_unack:GAUGE:0:U
 message_stats deliver:COUNTER:0:U deliver_get:COUNTER:0:U ack:COUNTER:0:U deliver_no_ack:COUNTER:0:U publish:COUNTER:0:U redeliver:COUNTER:0:U
 message_stats_details deliver:GAUGE:0:U deliver_get:GAUGE:0:U ack:GAUGE:0:U deliver_no_ack:GAUGE:0:U publish:GAUGE:0:U redeliver:GAUGE:0:U
 
+vhost_stats messages:COUNTER:0:U msgs_ready:COUNTER:0:U msgs_unack:COUNTER:0:U recv_oct:COUNTER:0:U send_oct:COUNTER:0:U
+vhost_stats_details messages:GAUGE:0:U msgs_ready:GAUGE:0:U msgs_unack:GAUGE:0:U recv_oct:GAUGE:0:U send_oct:GAUGE:0:U
