@@ -211,7 +211,7 @@ def read(input_data=None):
         for queue in get_info("%s/queues/%s" % (base_url, vhost_name)):
             queue_name = urllib.quote(queue['name'], '')
             collectd.debug("Found queue %s" % queue['name'])
-            if not want_to_ignore("queue", queue_name):
+            if not want_to_ignore("queue", queue_name) and queue['durable'] :
                 queue_data = get_info("%s/queues/%s/%s" % (base_url,
                                                            vhost_name,
                                                            queue_name))
@@ -233,7 +233,10 @@ def read(input_data=None):
 
         for exchange in get_info("%s/exchanges/%s" % (base_url,
                                  vhost_name)):
-            if exchange.has_key('message_stats'):
+        #    collectd.info( "durable? : %s" % exchange['durable'] )
+        #    if exchange['durable'] :
+        #        collectd.info( "durable que si ...")
+            if exchange.has_key('message_stats') and exchange['durable'] :
                 collectd.debug("Found exchange %s" % exchange['name'])
                 message_stats = ['publish_in', 'publish_out']
                 values = map( exchange['message_stats'].get , message_stats )
