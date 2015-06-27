@@ -1,5 +1,6 @@
 rabbitmq_node disk_free:GAUGE:0:U disk_free_limit:GAUGE:0:U fd_total:GAUGE:0:U fd_used:GAUGE:0:U mem_limit:GAUGE:0:U mem_used:GAUGE:0:U proc_total:GAUGE:0:U proc_used:GAUGE:0:U processors:GAUGE:0:U run_queue:GAUGE:0:U sockets_total:GAUGE:0:U sockets_used:GAUGE:0:U
 
-rabbitmq_queue memory:GAUGE:0:U messages:GAUGE:0:U consumers:GAUGE:0:U rate-msg:COUNTER:0:U rate-ready:COUNTER:0:U rate-unack:COUNTER:0:U
+rabbitmq_queue memory:GAUGE:0:U messages:COUNTER:0:U consumers:GAUGE:0:U rate-msg:COUNTER:0:U rate-ready:COUNTER:0:U rate-unack:COUNTER:0:U
+rabbitmq_queue_details messages:GAUGE:0:U rate-msg:GAUGE:0:U rate-ready:GAUGE:0:U rate-unack:GAUGE:0:U
 
 rabbitmq_exchange publish_in:COUNTER:0:U publish_out:COUNTER:0:U
