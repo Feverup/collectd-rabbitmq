@@ -10,3 +10,5 @@ rabbit_vhost messages:GAUGE:0:U messages_ready:GAUGE:0:U messages_unack:GAUGE:0:
 rabbit_queue messages:GAUGE:0:U messages_ready:GAUGE:0:U messages_unack:GAUGE:0:U memory:GAUGE:0:U consumers:GAUGE:0:U
 
 rabbit_exchange publish_in:COUNTER:0:U publish_out:COUNTER:0:U
+
+uwsgi load:GAUGE:0:U listen_queue:GAUGE:0:U listen_queue_errors:GAUGE:0:U signal_queue:GAUGE:0:U busy:GAUGE:0:U idle:GAUGE:0:U other:GAUGE:0:U tx:COUNTER:0:U requests:COUNTER:0:U delta_requests:GAUGE:0:U avg_rt:GAUGE:0:U
