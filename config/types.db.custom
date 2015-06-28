@@ -2,7 +2,7 @@
 rabbitmq_node disk_free:GAUGE:0:U disk_free_limit:GAUGE:0:U fd_total:GAUGE:0:U fd_used:GAUGE:0:U mem_limit:GAUGE:0:U mem_used:GAUGE:0:U proc_total:GAUGE:0:U proc_used:GAUGE:0:U processors:GAUGE:0:U run_queue:GAUGE:0:U sockets_total:GAUGE:0:U sockets_used:GAUGE:0:U
 #      "disk_free_alarm" : false,
 #      "mem_alarm" : false,
-io_stats io_seek:COUNTER:0:U io_seek_avg:GAUGE:0:U io_sync:COUNTER:0:U io_sync_avg_time:GAUGE:0:U io_read_bytes:COUNTER:0:U io_read:COUNTER:0:U io_read_avg_time:GAUGE:0:U io_write_bytes:COUNTER:0:U io_write:COUNTER:0:U io_write_avg_time:GAUGE:0:U queue_index_read:COUNTER:0:U queue_index_w:COUNTER:0:U queue_idx_j_w:COUNTER:0:U mnesia_ram_tx:COUNTER:0:U mnesia_disk_tx:COUNTER:0:U msg_store_read:COUNTER:0:U msg_store_w:COUNTER:0:U
+io_stats io_seek:COUNTER:0:U io_seek_avg_time:GAUGE:0:U io_sync:COUNTER:0:U io_sync_avg_time:GAUGE:0:U io_read_bytes:COUNTER:0:U io_read:COUNTER:0:U io_read_avg_time:GAUGE:0:U io_write_bytes:COUNTER:0:U io_write:COUNTER:0:U io_write_avg_time:GAUGE:0:U queue_index_read:COUNTER:0:U queue_index_w:COUNTER:0:U queue_idx_j_w:COUNTER:0:U mnesia_ram_tx:COUNTER:0:U mnesia_disk_tx:COUNTER:0:U msg_store_read:COUNTER:0:U msg_store_w:COUNTER:0:U
 io_stats_details io_seek:GAUGE:0:U io_seek_avg_time:GAUGE:0:U io_sync:GAUGE:0:U io_sync_avg_time:GAUGE:0:U io_read_bytes:GAUGE:0:U io_read:GAUGE:0:U io_read_avg_time:GAUGE:0:U io_write_bytes:GAUGE:0:U io_write:GAUGE:0:U io_write_avg_time:GAUGE:0:U queue_index_read:GAUGE:0:U queue_index_w:GAUGE:0:U queue_idx_j_w:GAUGE:0:U mnesia_ram_tx:GAUGE:0:U mnesia_disk_tx:GAUGE:0:U msg_store_read:GAUGE:0:U msg_store_w:GAUGE:0:U
 
 #rabbitmq_queue memory:GAUGE:0:U messages:GAUGE:0:U consumers:GAUGE:0:U rate-msg:GAUGE:0:U rate-ready:GAUGE:0:U rate-unack:GAUGE:0:U
@@ -16,10 +16,13 @@ uwsgi load:GAUGE:0:U listen_queue:GAUGE:0:U listen_queue_errors:GAUGE:0:U signal
 totals channels:GAUGE:0:U connections:GAUGE:0:U consumers:GAUGE:0:U exchanges:GAUGE:0:U queues:GAUGE:0:U
 #
 queue_stats messages:COUNTER:0:U msgs_ready:COUNTER:0:U msgs_unack:COUNTER:0:U
+queue_stats_derive messages:DERIVE:0:U msgs_ready:DERIVE:0:U msgs_unack:DERIVE:0:U
 queue_stats_details messages:GAUGE:0:U msgs_ready:GAUGE:0:U msgs_unack:GAUGE:0:U
 #
 message_stats deliver:COUNTER:0:U deliver_get:COUNTER:0:U ack:COUNTER:0:U deliver_no_ack:COUNTER:0:U publish:COUNTER:0:U redeliver:COUNTER:0:U
+message_stats_derive deliver:DERIVE:0:U deliver_get:DERIVE:0:U ack:DERIVE:0:U deliver_no_ack:DERIVE:0:U publish:DERIVE:0:U redeliver:DERIVE:0:U
 message_stats_details deliver:GAUGE:0:U deliver_get:GAUGE:0:U ack:GAUGE:0:U deliver_no_ack:GAUGE:0:U publish:GAUGE:0:U redeliver:GAUGE:0:U
 
 vhost_stats messages:COUNTER:0:U msgs_ready:COUNTER:0:U msgs_unack:COUNTER:0:U recv_oct:COUNTER:0:U send_oct:COUNTER:0:U
+vhost_stats_derive messages:DERIVE:0:U msgs_ready:DERIVE:0:U msgs_unack:DERIVE:0:U recv_oct:DERIVE:0:U send_oct:DERIVE:0:U
 vhost_stats_details messages:GAUGE:0:U msgs_ready:GAUGE:0:U msgs_unack:GAUGE:0:U recv_oct:GAUGE:0:U send_oct:GAUGE:0:U

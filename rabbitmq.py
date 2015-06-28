@@ -131,28 +131,31 @@ def read(input_data=None):
     urllib2.install_opener(opener)
 
     overview = get_info("%s/overview" % base_url)
+    cluster_name = overview['cluster_name'].split('@')[1]
     node_name = overview['node'].split('@')[1]
     #
     object_totals = ['channels', 'connections', 'consumers', 'exchanges', 'queues']
     values = map( overview['object_totals'].get , object_totals )
-    dispatch_values(values, node_name, 'overview', None, 'totals')
+    dispatch_values(values, cluster_name, 'overview', None, 'totals')
     #
     queue_totals = ['messages', 'messages_ready', 'messages_unacknowledged']
     values = map( overview['queue_totals'].get , queue_totals )
-    dispatch_values(values, node_name, 'overview', None, 'queue_stats')
+    dispatch_values(values, cluster_name, 'overview', None, 'queue_stats')
+    dispatch_values(values, cluster_name, 'overview', None, 'queue_stats_derive')
     #
     queue_totals = map( lambda x : "%s_details" % x , queue_totals )
     values = map( lambda x : overview['queue_totals'][x]['rate'] , queue_totals )
-    dispatch_values(values, node_name, 'overview', None, 'queue_stats_details')
+    dispatch_values(values, cluster_name, 'overview', None, 'queue_stats_details')
     #
     if overview.has_key('message_stats'):
         message_stats = ['deliver', 'deliver_get', 'ack', 'deliver_no_ack', 'publish', 'redeliver']
         values = map( overview['message_stats'].get , message_stats )
-        dispatch_values(values, node_name, 'overview', None, 'message_stats')
+        dispatch_values(values, cluster_name, 'overview', None, 'message_stats')
+        dispatch_values(values, cluster_name, 'overview', None, 'message_stats_derive')
         #
         message_stats = map( lambda x : "%s_details" % x , message_stats )
         values = map( lambda x : overview['message_stats'][x]['rate'] , message_stats )
-        dispatch_values(values, node_name, 'overview', None, 'message_stats_details')
+        dispatch_values(values, cluster_name, 'overview', None, 'message_stats_details')
 
     #First get all the nodes
     node_stats = ['disk_free', 'disk_free_limit', 'fd_total',
@@ -174,11 +177,11 @@ def read(input_data=None):
         dispatch_values(values, node['name'].split('@')[1],
                         'rabbitmq_%s'%node_name, None, 'rabbitmq_node')
         values = map( node.get , io_stats )
-    #    dispatch_values(values, node['name'].split('@')[1],
-    #                    'rabbitmq_%s'%node_name, None, 'io_stats')
-    #    values =  map( lambda k : node["%s_details"%k]['rate'] , io_stats )
-    #    dispatch_values(values, node['name'].split('@')[1],
-    #                    'rabbitmq_%s'%node_name, None, 'io_stats_details')
+        dispatch_values(values, node['name'].split('@')[1],
+                        'rabbitmq_%s'%node_name, None, 'io_stats')
+        values =  map( lambda k : node["%s_details"%k]['rate'] , io_stats )
+        dispatch_values(values, node['name'].split('@')[1],
+                        'rabbitmq_%s'%node_name, None, 'io_stats_details')
     except Exception , ex :
         collectd.info("Se romipio el nodes con %s" % ex)
 
@@ -189,12 +192,15 @@ def read(input_data=None):
 
         vhost_name = urllib.quote(vhost['name'], '')
         collectd.debug("Found vhost %s" % vhost['name'])
+        vhost_safename0 = vhost['name'].replace('/', 'default')
         vhost_safename = 'rabbitmq_%s_%s' % (node_name,vhost['name'].replace('/', 'default'))
 
         if vhost.has_key( 'message_stats' ) :
             vhost_stats = ['messages', 'messages_ready', 'messages_unacknowledged', 'recv_oct', 'send_oct']
             values = map( vhost.get , vhost_stats )
             dispatch_values(values, vhost_safename, 'vhost', None, 'vhost_stats')
+            #dispatch_values(values, cluster_name , "vhost-%s" % vhost_name, None, 'vhost_stats')
+            dispatch_values(values, cluster_name , "vhost-%s" % vhost_safename0, None, 'vhost_stats_derive')
             #
             vhost_stats = map( lambda x : "%s_details" % x , vhost_stats )
             values = map( lambda x : vhost[x]['rate'] , vhost_stats )
@@ -203,6 +209,7 @@ def read(input_data=None):
             message_stats = ['deliver', 'deliver_get', 'ack', 'deliver_no_ack', 'publish', 'redeliver']
             values = map( vhost['message_stats'].get , message_stats )
             dispatch_values(values, vhost_safename, 'messages', None, 'message_stats')
+            dispatch_values(values, cluster_name , 'vhost-%s' % vhost_safename0, None, 'message_stats_derive')
             #
             message_stats = map( lambda x : "%s_details" % x , message_stats )
             values = map( lambda x : vhost['message_stats'][x]['rate'] , message_stats )
@@ -211,7 +218,7 @@ def read(input_data=None):
         for queue in get_info("%s/queues/%s" % (base_url, vhost_name)):
             queue_name = urllib.quote(queue['name'], '')
             collectd.debug("Found queue %s" % queue['name'])
-            if not want_to_ignore("queue", queue_name) and queue['durable'] :
+            if not want_to_ignore("queue", queue_name) : # and queue['durable'] :
                 queue_data = get_info("%s/queues/%s/%s" % (base_url,
                                                            vhost_name,
                                                            queue_name))
@@ -233,10 +240,7 @@ def read(input_data=None):
 
         for exchange in get_info("%s/exchanges/%s" % (base_url,
                                  vhost_name)):
-        #    collectd.info( "durable? : %s" % exchange['durable'] )
-        #    if exchange['durable'] :
-        #        collectd.info( "durable que si ...")
-            if exchange.has_key('message_stats') and exchange['durable'] :
+            if exchange.has_key('message_stats') : # and exchange['durable'] :
                 collectd.debug("Found exchange %s" % exchange['name'])
                 message_stats = ['publish_in', 'publish_out']
                 values = map( exchange['message_stats'].get , message_stats )
