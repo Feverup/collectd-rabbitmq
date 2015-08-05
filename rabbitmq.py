@@ -13,9 +13,10 @@ RABBITMQ_OVERVIEW = ['channels', 'connections', 'consumers', 'exchanges', 'queue
 RABBITMQ_QUEUES = ['messages', 'messages_ready', 'messages_unacknowledged']
 RABBITMQ_MESSAGES = ['deliver', 'deliver_get', 'ack', 'deliver_no_ack', 'publish', 'redeliver']
 
-RABBITMQ_VHOST = ['messages', 'messages_ready', 'messages_unacknowledged', 'recv_oct', 'send_oct']
+RABBITMQ_VHOST = ['recv_oct', 'send_oct']
 
-QUEUE_STATS = ['messages', 'messages_ready', 'messages_unacknowledged', 'memory', 'consumers']
+QUEUE_STATS = ['memory', 'consumers']
+
 
 MESSAGE_STATS = ['publish_in', 'publish_out']
 
@@ -177,7 +178,7 @@ def read(input_data=None):
         vhost_safename = 'rabbitmq_%s' % vhost['name'].replace('/', 'default')
 
         if vhost.has_key( 'message_stats' ) :
-            values = map( vhost.get , RABBITMQ_VHOST )
+            values = map( vhost.get , RABBITMQ_QUEUES + RABBITMQ_VHOST )
             dispatch_values(values, vhost_safename, 'rabbitmq', None, 'rabbit_vhost')
             values = map( vhost['message_stats'].get , RABBITMQ_MESSAGES )
             dispatch_values(values, vhost_safename, 'messages', None, 'rabbit_messages')
@@ -190,9 +191,10 @@ def read(input_data=None):
                                                            vhost_name,
                                                            queue_name))
                 if queue_data is not None:
-                    values = map( queue_data.get , QUEUE_STATS )
+                    values = map( queue_data.get , RABBITMQ_QUEUES + QUEUE_STATS )
                     dispatch_values(values, vhost_safename, 'queue', queue_data['name'],
-                                    'rabbit_queue', queue['node'].split('@')[1] )
+                                    'rabbit_queue') # , queue['node'].split('@')[1] )
+                    #               'rabbit_queue', queue['node'].split('@')[1] )
                 else:
                     collectd.warning("Cannot get data back from %s/%s queue" %
                                     (vhost_name, queue_name))
