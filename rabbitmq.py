@@ -46,9 +46,9 @@ def configure(config_values):
     '''
 
     global PLUGIN_CONFIG
-    collectd.info('Configuring RabbitMQ Plugin')
+    collectd.warning('Configuring RabbitMQ Plugin')
     for config_value in config_values.children:
-        collectd.info("%s = %s" % (config_value.key,
+        collectd.warning("%s = %s" % (config_value.key,
                                    len(config_value.values) > 0))
         if len(config_value.values) > 0:
             if config_value.key == 'Username':
@@ -73,7 +73,7 @@ def init():
     '''
     Initalize connection to rabbitmq
     '''
-    collectd.info('Initalizing RabbitMQ Plugin')
+    collectd.warning('Initalizing RabbitMQ Plugin')
 
 
 def get_info(url):
@@ -134,6 +134,15 @@ def want_to_ignore(type_rmq, name):
     return False
 
 
+def mefiltras ( values ) :
+    output = []
+    for v in values :
+        if v is None :
+            output.append( 0 )
+        else :
+            output.append( v )
+    return output
+
 def read(input_data=None):
     '''
     reads all metrics from rabbitmq
@@ -142,32 +151,50 @@ def read(input_data=None):
     collectd.debug("Reading data with input = %s" % (input_data))
     base_url = RABBIT_API_URL.format(host=PLUGIN_CONFIG['host'],
                                      port=PLUGIN_CONFIG['port'])
+    collectd.warning("Asking to %s" % base_url)
 
     auth_handler = urllib2.HTTPBasicAuthHandler()
     auth_handler.add_password(realm=PLUGIN_CONFIG['realm'],
                               uri=base_url,
                               user=PLUGIN_CONFIG['username'],
                               passwd=PLUGIN_CONFIG['password'])
+    #collectd.warning("url is = %s" % base_url)
     opener = urllib2.build_opener(auth_handler)
     urllib2.install_opener(opener)
 
     overview = get_info("%s/overview" % base_url)
+    #collectd.warning("overview = %s" % overview)
     cluster_name = overview['cluster_name'].split('@')[1]
     values = map( overview['object_totals'].get , RABBITMQ_OVERVIEW )
     dispatch_values(values, cluster_name, 'rabbitmq', None, 'rabbit_overview')
+    dispatch_values(values, cluster_name, 'rabbitmq', None, 'rabbit_overview_new')
     values = map( overview['queue_totals'].get , RABBITMQ_QUEUES )
     dispatch_values(values, cluster_name, 'rabbitmq', None, 'rabbit_queues')
-    values = map( overview['message_stats'].get , RABBITMQ_MESSAGES )
+    dispatch_values(values, cluster_name, 'rabbitmq', None, 'rabbit_queues_new')
+    values = mefiltras( map( overview['message_stats'].get , RABBITMQ_MESSAGES ) )
+    #if values[-1] is None :
+    #    values[-1] = 0
     dispatch_values(values, cluster_name, 'rabbitmq', None, 'rabbit_messages')
+    dispatch_values(values, cluster_name, 'rabbitmq', None, 'rabbit_messages_new')
 
     #First get all the nodes
     for node in get_info("%s/nodes" % (base_url)):
+   #     collectd.warning("node = %s" % node)
         values = map( node.get , NODE_STATS )
-        dispatch_values(values, node['name'].split('@')[1],
+   #     collectd.warning("     = %s" % values)
+        collectd.warning("Dispatching %s %s\n\t%s " % ( 'rabbitmq' , 'rabbit_node' , values ) )
+        if values.count(None) < 1 :
+          dispatch_values(values, node['name'].split('@')[1],
                         'rabbitmq', None, 'rabbit_node')
-        values = map( node.get , NODE_IO )
-        dispatch_values(values, node['name'].split('@')[1],
+          dispatch_values(values, node['name'].split('@')[1],
+                        'rabbitmq', None, 'rabbit_node_new')
+        values = mefiltras( map( node.get , NODE_IO ) )
+        collectd.warning("Dispatching %s %s\n\t%s " % ( 'rabbitmq' , 'rabbit_io' , values ) )
+        if values.count(None) < 1 :
+          dispatch_values(values, node['name'].split('@')[1],
                         'rabbitmq', None, 'rabbit_io')
+          dispatch_values(values, node['name'].split('@')[1],
+                        'rabbitmq', None, 'rabbit_io_new')
 
     #Then get all vhost
 
@@ -177,12 +204,25 @@ def read(input_data=None):
         collectd.debug("Found vhost %s" % vhost['name'])
         vhost_safename = 'rabbitmq_%s' % vhost['name'].replace('/', 'default')
 
+        collectd.warning("Asking to %s %s %s" % (base_url,vhost['name'],vhost_safename))
+
         if vhost.has_key( 'message_stats' ) :
             values = map( vhost.get , RABBITMQ_QUEUES + RABBITMQ_VHOST )
             dispatch_values(values, vhost_safename, 'rabbitmq', None, 'rabbit_vhost')
-            values = map( vhost['message_stats'].get , RABBITMQ_MESSAGES )
+            collectd.warning("Dispatching %s %s\n\t%s " % ( 'rabbitmq' , 'rabbit_vhost' , values ) )
+            values = mefiltras( map( vhost['message_stats'].get , RABBITMQ_MESSAGES ) )
+            #if values[-1] is None :
+            #    values[-1] = 0
             dispatch_values(values, vhost_safename, 'messages', None, 'rabbit_messages')
+        else :
+            collectd.debug("No message stats on %s (%s) at %s" % ( vhost['name'] , vhost_safename , base_url ) )
 
+        #if vhost_name == '%2F' :
+        if vhost_safename == 'rabbitmq_default' :
+            collectd.warning( 'Skip queues & exchanges for default vhost' )
+            continue
+
+        #try :
         for queue in get_info("%s/queues/%s" % (base_url, vhost_name)):
             queue_name = urllib.quote(queue['name'], '')
             collectd.debug("Found queue %s" % queue['name'])
@@ -195,10 +235,15 @@ def read(input_data=None):
                     dispatch_values(values, vhost_safename, 'queue', queue_data['name'],
                                     'rabbit_queue') # , queue['node'].split('@')[1] )
                     #               'rabbit_queue', queue['node'].split('@')[1] )
+                    dispatch_values(values, vhost_safename, 'queue', queue_data['name'],
+                                    'rabbit_queue_new')
                 else:
                     collectd.warning("Cannot get data back from %s/%s queue" %
                                     (vhost_name, queue_name))
+        #except Exception , ex :
+        #    collectd.warning("Cannot get queue data for %s %s , %s : %s" % ( base_url , vhost_name , vhost_safename , ex ) )
 
+        #try :
         for exchange in get_info("%s/exchanges/%s" % (base_url,
                                  vhost_name)):
             exchange_name = urllib.quote(exchange['name'], '')
@@ -210,6 +255,10 @@ def read(input_data=None):
                     values = map( exchange_data['message_stats'].get , MESSAGE_STATS )
                     dispatch_values(values, vhost_safename, 'exchange', exchange_data['name'],
                                     'rabbit_exchange')
+                    dispatch_values(values, vhost_safename, 'exchange', exchange_data['name'],
+                                    'rabbit_exchange_new')
+        #except Exception , ex :
+        #    collectd.warning("Cannot get queue data for %s %s , %s : %s" % ( base_url , vhost_name , vhost_safename , ex ) )
 
 
 def shutdown():

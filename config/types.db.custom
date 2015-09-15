@@ -1,14 +1,22 @@
 rabbit_overview channels:GAUGE:0:U connections:GAUGE:0:U consumers:GAUGE:0:U exchanges:GAUGE:0:U queues:GAUGE:0:U
+rabbit_overview_new channels:GAUGE:0:U connections:GAUGE:0:U consumers:GAUGE:0:U exchanges:GAUGE:0:U queues:GAUGE:0:U
 rabbit_queues messages:COUNTER:0:U messages_ready:COUNTER:0:U messages_unack:COUNTER:0:U
+rabbit_queues_new messages:COUNTER:0:U messages_ready:COUNTER:0:U messages_unack:COUNTER:0:U
 rabbit_messages deliver:COUNTER:0:U deliver_get:COUNTER:0:U ack:COUNTER:0:U deliver_no_ack:COUNTER:0:U publish:COUNTER:0:U redeliver:COUNTER:0:U
+rabbit_messages_new deliver:COUNTER:0:U deliver_get:COUNTER:0:U ack:COUNTER:0:U deliver_no_ack:COUNTER:0:U publish:COUNTER:0:U redeliver:COUNTER:0:U
 
 rabbit_node disk_free:GAUGE:0:U disk_free_limit:GAUGE:0:U fd_total:GAUGE:0:U fd_used:GAUGE:0:U mem_limit:GAUGE:0:U mem_used:GAUGE:0:U proc_total:GAUGE:0:U proc_used:GAUGE:0:U processors:GAUGE:0:U run_queue:GAUGE:0:U sockets_total:GAUGE:0:U sockets_used:GAUGE:0:U
+rabbit_node_new disk_free:GAUGE:0:U disk_free_limit:GAUGE:0:U fd_total:GAUGE:0:U fd_used:GAUGE:0:U mem_limit:GAUGE:0:U mem_used:GAUGE:0:U proc_total:GAUGE:0:U proc_used:GAUGE:0:U processors:GAUGE:0:U run_queue:GAUGE:0:U sockets_total:GAUGE:0:U sockets_used:GAUGE:0:U
 rabbit_io io_seek:COUNTER:0:U io_seek_avg_time:GAUGE:0:U io_sync:COUNTER:0:U io_sync_avg_time:GAUGE:0:U io_read_bytes:COUNTER:0:U io_read:COUNTER:0:U io_read_avg_time:GAUGE:0:U io_write_bytes:COUNTER:0:U io_write:COUNTER:0:U io_write_avg_time:GAUGE:0:U index_read:COUNTER:0:U index_write:COUNTER:0:U index_journal_write:COUNTER:0:U mnesia_ram_tx:COUNTER:0:U mnesia_disk_tx:COUNTER:0:U msg_store_read:COUNTER:0:U msg_store_write:COUNTER:0:U
+rabbit_io_new io_seek:COUNTER:0:U io_seek_avg_time:GAUGE:0:U io_sync:COUNTER:0:U io_sync_avg_time:GAUGE:0:U io_read_bytes:COUNTER:0:U io_read:COUNTER:0:U io_read_avg_time:GAUGE:0:U io_write_bytes:COUNTER:0:U io_write:COUNTER:0:U io_write_avg_time:GAUGE:0:U index_read:COUNTER:0:U index_write:COUNTER:0:U index_journal_write:COUNTER:0:U mnesia_ram_tx:COUNTER:0:U mnesia_disk_tx:COUNTER:0:U msg_store_read:COUNTER:0:U msg_store_write:COUNTER:0:U
 
 rabbit_vhost messages:GAUGE:0:U messages_ready:GAUGE:0:U messages_unack:GAUGE:0:U recv_oct:COUNTER:0:U send_oct:COUNTER:0:U
+rabbit_vhost_new messages:GAUGE:0:U messages_ready:GAUGE:0:U messages_unack:GAUGE:0:U recv_oct:COUNTER:0:U send_oct:COUNTER:0:U
 
 rabbit_queue messages:GAUGE:0:U messages_ready:GAUGE:0:U messages_unack:GAUGE:0:U memory:GAUGE:0:U consumers:GAUGE:0:U
+rabbit_queue_new messages:GAUGE:0:U messages_ready:GAUGE:0:U messages_unack:GAUGE:0:U memory:GAUGE:0:U consumers:GAUGE:0:U
 
 rabbit_exchange publish_in:COUNTER:0:U publish_out:COUNTER:0:U
+rabbit_exchange_new publish_in:COUNTER:0:U publish_out:COUNTER:0:U
 
-uwsgi load:GAUGE:0:U listen_queue:GAUGE:0:U listen_queue_errors:GAUGE:0:U signal_queue:GAUGE:0:U busy:GAUGE:0:U idle:GAUGE:0:U other:GAUGE:0:U tx:COUNTER:0:U requests:COUNTER:0:U delta_requests:GAUGE:0:U avg_rt:GAUGE:0:U
+rabbit_vhost_raw messages:GAUGE:0:U messages_ready:GAUGE:0:U messages_unack:GAUGE:0:U recv_oct:GAUGE:0:U send_oct:GAUGE:0:U
