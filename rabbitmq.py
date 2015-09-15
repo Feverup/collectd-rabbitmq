@@ -134,6 +134,15 @@ def want_to_ignore(type_rmq, name):
     return False
 
 
+def cleandata ( values ) :
+    output = []
+    for v in values :
+        if v is None :
+            output.append( 0 )
+        else :
+            output.append( v )
+    return output
+
 def read(input_data=None):
     '''
     reads all metrics from rabbitmq
@@ -157,15 +166,15 @@ def read(input_data=None):
     dispatch_values(values, cluster_name, 'rabbitmq', None, 'rabbit_overview')
     values = map( overview['queue_totals'].get , RABBITMQ_QUEUES )
     dispatch_values(values, cluster_name, 'rabbitmq', None, 'rabbit_queues')
-    values = map( overview['message_stats'].get , RABBITMQ_MESSAGES )
+    values = cleandata( map( overview['message_stats'].get , RABBITMQ_MESSAGES ) )
     dispatch_values(values, cluster_name, 'rabbitmq', None, 'rabbit_messages')
 
     #First get all the nodes
     for node in get_info("%s/nodes" % (base_url)):
-        values = map( node.get , NODE_STATS )
+        values = cleandata( map( node.get , NODE_STATS ) )
         dispatch_values(values, node['name'].split('@')[1],
                         'rabbitmq', None, 'rabbit_node')
-        values = map( node.get , NODE_IO )
+        values = cleandata( map( node.get , NODE_IO ) )
         dispatch_values(values, node['name'].split('@')[1],
                         'rabbitmq', None, 'rabbit_io')
 
@@ -180,7 +189,7 @@ def read(input_data=None):
         if vhost.has_key( 'message_stats' ) :
             values = map( vhost.get , RABBITMQ_QUEUES + RABBITMQ_VHOST )
             dispatch_values(values, vhost_safename, 'rabbitmq', None, 'rabbit_vhost')
-            values = map( vhost['message_stats'].get , RABBITMQ_MESSAGES )
+            values = cleandata( map( vhost['message_stats'].get , RABBITMQ_MESSAGES ) )
             dispatch_values(values, vhost_safename, 'messages', None, 'rabbit_messages')
 
         for queue in get_info("%s/queues/%s" % (base_url, vhost_name)):
