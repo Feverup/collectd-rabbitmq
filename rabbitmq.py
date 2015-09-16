@@ -144,12 +144,13 @@ def cleandata ( values ) :
     return output
 
 def read(input_data=None):
-    '''
-    reads all metrics from rabbitmq
-    '''
+  '''
+  reads all metrics from rabbitmq
+  '''
 
-    collectd.debug("Reading data with input = %s" % (input_data))
-    base_url = RABBIT_API_URL.format(host=PLUGIN_CONFIG['host'],
+  collectd.debug("Reading data with input = %s" % (input_data))
+  for host in PLUGIN_CONFIG['host'].split(',') :
+    base_url = RABBIT_API_URL.format(host=host,
                                      port=PLUGIN_CONFIG['port'])
 
     auth_handler = urllib2.HTTPBasicAuthHandler()
@@ -173,10 +174,10 @@ def read(input_data=None):
     for node in get_info("%s/nodes" % (base_url)):
         values = cleandata( map( node.get , NODE_STATS ) )
         dispatch_values(values, node['name'].split('@')[1],
-                        'rabbitmq', None, 'rabbit_node')
+                        'rabbitmq_node', None, 'rabbit_node')
         values = cleandata( map( node.get , NODE_IO ) )
         dispatch_values(values, node['name'].split('@')[1],
-                        'rabbitmq', None, 'rabbit_io')
+                        'rabbitmq_node', None, 'rabbit_io')
 
     #Then get all vhost
 
@@ -188,9 +189,9 @@ def read(input_data=None):
 
         if vhost.has_key( 'message_stats' ) :
             values = map( vhost.get , RABBITMQ_QUEUES + RABBITMQ_VHOST )
-            dispatch_values(values, vhost_safename, 'rabbitmq', None, 'rabbit_vhost')
+            dispatch_values(values, cluster_name, 'vhost', vhost['name'].replace('/', 'default'), 'rabbit_vhost')
             values = cleandata( map( vhost['message_stats'].get , RABBITMQ_MESSAGES ) )
-            dispatch_values(values, vhost_safename, 'messages', None, 'rabbit_messages')
+            dispatch_values(values, cluster_name, 'messages', vhost['name'].replace('/', 'default') , 'rabbit_messages')
 
         for queue in get_info("%s/queues/%s" % (base_url, vhost_name)):
             queue_name = urllib.quote(queue['name'], '')
@@ -201,7 +202,7 @@ def read(input_data=None):
                                                            queue_name))
                 if queue_data is not None:
                     values = map( queue_data.get , RABBITMQ_QUEUES + QUEUE_STATS )
-                    dispatch_values(values, vhost_safename, 'queue', queue_data['name'],
+                    dispatch_values(values, cluster_name, 'queue', queue_data['name'],
                                     'rabbit_queue')
                 else:
                     collectd.warning("Cannot get data back from %s/%s queue" %
@@ -216,7 +217,7 @@ def read(input_data=None):
                                          base_url, vhost_name, exchange_name))
                 if exchange_data.has_key('message_stats'):
                     values = map( exchange_data['message_stats'].get , MESSAGE_STATS )
-                    dispatch_values(values, vhost_safename, 'exchange', exchange_data['name'],
+                    dispatch_values(values, cluster_name, 'exchange', exchange_data['name'],
                                     'rabbit_exchange')
 
 
